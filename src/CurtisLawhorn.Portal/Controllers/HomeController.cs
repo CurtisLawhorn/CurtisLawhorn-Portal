@@ -12,10 +12,12 @@ namespace CurtisLawhorn.Portal.Controllers;
 public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
+    private readonly HttpClient _httpClient;
 
-    public HomeController(ILogger<HomeController> logger)
+    public HomeController(ILogger<HomeController> logger, HttpClient httpClient)
     {
         _logger = logger;
+        _httpClient = httpClient;
     }
 
     [AllowAnonymous]
@@ -58,6 +60,28 @@ public class HomeController : Controller
 
         // Redirect to Cognito logout
         return Redirect(logoutUrl);
+    }
+    
+public async Task<IActionResult> CallApi()
+    {
+        var accessToken = await HttpContext.GetTokenAsync("access_token");
+        if (string.IsNullOrEmpty(accessToken))
+        {
+            return Unauthorized("Access token not found.");
+        }
+    
+        _httpClient.DefaultRequestHeaders.Authorization =
+            new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
+        var apiUrl = "https://api.curtislawhorn.com/weather-services/weatherforecasts";
+        var response = await _httpClient.GetAsync(apiUrl);
+        if (!response.IsSuccessStatusCode)
+        {
+            return StatusCode((int)response.StatusCode, await response.Content.ReadAsStringAsync());
+        }
+        var content = await response.Content.ReadAsStringAsync();
+        
+        return Content(content, "application/json");
+        
     }
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

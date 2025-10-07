@@ -39,6 +39,7 @@ public class Program
                 options.Scope.Add("openid");
                 options.Scope.Add("email");
             });
+        builder.Services.AddHttpClient();
         var app = builder.Build();
 
         // Configure the HTTP request pipeline.
