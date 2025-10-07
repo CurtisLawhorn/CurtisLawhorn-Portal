@@ -25,6 +25,7 @@ public class Program
             })
             .AddCookie(options =>
             {
+                options.Cookie.Name = "CurtisLawhorn.Portal";
                 options.Cookie.HttpOnly = true;
                 options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
             })
